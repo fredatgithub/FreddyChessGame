@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("FreddyChessGame")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("e-SNCF")]
 [assembly: AssemblyProduct("FreddyChessGame")]
-[assembly: AssemblyCopyright("Copyright © MIT Freddy Juhel 2025")]
+[assembly: AssemblyCopyright("Copyright © e-SNCF 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
