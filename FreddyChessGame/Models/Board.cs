@@ -35,7 +35,7 @@ namespace FreddyChessGame.Models
 
         public bool IsValidMove(int fromRow, int fromCol, int toRow, int toCol)
         {
-            // Basic checks
+            if (fromRow < 0 || fromRow > 7 || fromCol < 0 || fromCol > 7 || toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) return false;
             if (fromRow == toRow && fromCol == toCol) return false;
             Piece piece = GetPieceAt(fromRow, fromCol);
             if (piece == null) return false;
@@ -46,9 +46,18 @@ namespace FreddyChessGame.Models
             {
                 case PieceType.Pawn:
                     return IsValidPawnMove(piece, fromRow, fromCol, toRow, toCol);
-                // Cases for other pieces will be added here
+                case PieceType.Rook:
+                    return IsValidRookMove(fromRow, fromCol, toRow, toCol);
+                case PieceType.Bishop:
+                    return IsValidBishopMove(fromRow, fromCol, toRow, toCol);
+                case PieceType.Knight:
+                    return IsValidKnightMove(fromRow, fromCol, toRow, toCol);
+                case PieceType.Queen:
+                    return IsValidRookMove(fromRow, fromCol, toRow, toCol) || IsValidBishopMove(fromRow, fromCol, toRow, toCol);
+                case PieceType.King:
+                    return IsValidKingMove(fromRow, fromCol, toRow, toCol);
                 default:
-                    return false; // Not implemented yet
+                    return false;
             }
         }
 
@@ -57,31 +66,73 @@ namespace FreddyChessGame.Models
             int forwardDirection = (pawn.Color == PlayerColor.White) ? -1 : 1;
             Piece destinationPiece = GetPieceAt(toRow, toCol);
 
-            // Standard 1-square move
-            if (toCol == fromCol && toRow == fromRow + forwardDirection && destinationPiece == null)
-            {
-                return true;
-            }
+            if (toCol == fromCol && toRow == fromRow + forwardDirection && destinationPiece == null) return true;
 
-            // Initial 2-square move
             bool isStartingRank = (pawn.Color == PlayerColor.White && fromRow == 6) || (pawn.Color == PlayerColor.Black && fromRow == 1);
-            if (isStartingRank && toCol == fromCol && toRow == fromRow + 2 * forwardDirection && destinationPiece == null)
+            if (isStartingRank && toCol == fromCol && toRow == fromRow + 2 * forwardDirection && destinationPiece == null && GetPieceAt(fromRow + forwardDirection, fromCol) == null) return true;
+
+            if (Math.Abs(toCol - fromCol) == 1 && toRow == fromRow + forwardDirection && destinationPiece != null) return true;
+
+            return false;
+        }
+
+        private bool IsValidRookMove(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            if (fromRow != toRow && fromCol != toCol) return false;
+
+            if (fromRow == toRow)
             {
-                // Check if path is clear
-                if (GetPieceAt(fromRow + forwardDirection, fromCol) == null)
+                int startCol = Math.Min(fromCol, toCol) + 1;
+                int endCol = Math.Max(fromCol, toCol);
+                for (int c = startCol; c < endCol; c++)
                 {
-                    return true;
+                    if (GetPieceAt(fromRow, c) != null) return false;
+                }
+            }
+            else
+            {
+                int startRow = Math.Min(fromRow, toRow) + 1;
+                int endRow = Math.Max(fromRow, toRow);
+                for (int r = startRow; r < endRow; r++)
+                {
+                    if (GetPieceAt(r, fromCol) != null) return false;
                 }
             }
 
-            // Capture move
-            if (Math.Abs(toCol - fromCol) == 1 && toRow == fromRow + forwardDirection && destinationPiece != null)
+            return true;
+        }
+
+        private bool IsValidBishopMove(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            if (Math.Abs(fromRow - toRow) != Math.Abs(fromCol - toCol)) return false;
+
+            int rowStep = (toRow > fromRow) ? 1 : -1;
+            int colStep = (toCol > fromCol) ? 1 : -1;
+            int currentRow = fromRow + rowStep;
+            int currentCol = fromCol + colStep;
+
+            while (currentRow != toRow && currentCol != toCol)
             {
-                return true; // Destination piece color is already checked in IsValidMove
+                if (GetPieceAt(currentRow, currentCol) != null) return false;
+                currentRow += rowStep;
+                currentCol += colStep;
             }
 
-            // En-passant will be handled later
-            return false;
+            return true;
+        }
+
+        private bool IsValidKnightMove(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            int rowDiff = Math.Abs(fromRow - toRow);
+            int colDiff = Math.Abs(fromCol - toCol);
+            return (rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2);
+        }
+
+        private bool IsValidKingMove(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            int rowDiff = Math.Abs(fromRow - toRow);
+            int colDiff = Math.Abs(fromCol - toCol);
+            return rowDiff <= 1 && colDiff <= 1;
         }
 
         public void ResetBoard()
