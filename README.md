@@ -1,1 +1,1 @@
-# FreddyChessGame
+# Another Chess game by Freddy
