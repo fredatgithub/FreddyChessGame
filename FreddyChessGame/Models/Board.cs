@@ -1,3 +1,5 @@
+using System;
+
 namespace FreddyChessGame.Models
 {
     public class Board
